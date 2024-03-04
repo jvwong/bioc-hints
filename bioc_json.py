@@ -8,7 +8,7 @@ import json
 import sys
 import os
 
-pybioc_path = '/home/comeau/src/PyBioC'
+pybioc_path = '/Users/jeffreywong/Projects/scratch/PyBioC'
 sys.path.append(os.path.join(pybioc_path, 'src'))
 import bioc
 
@@ -16,12 +16,12 @@ class BioC2JSON:
     def node(this, node):
         json_node = {'refid': node.refid, 'role': node.role}
         return json_node
-    
+
     def relation(this, rel):
         json_rel = {}
         json_rel['id'] = rel.id
         json_rel['infons'] = rel.infons
-        json_rel['nodes'] = [this.node(n) for n in rel.nodes] 
+        json_rel['nodes'] = [this.node(n) for n in rel.nodes]
         return json_rel
 
     def location(this, loc):
@@ -34,9 +34,9 @@ class BioC2JSON:
         json_note['infons'] = note.infons
         json_note['text'] = note.text
         json_note['locations'] = [this.location(l)
-                                  for l in note.locations] 
+                                  for l in note.locations]
         return json_note
-    
+
     def sentence(this, sent):
         json_sent = {}
         json_sent['infons'] = sent.infons
@@ -45,7 +45,7 @@ class BioC2JSON:
         json_sent['annotations'] = [this.annotation(a)
                                     for a in sent.annotations]
         json_sent['relations'] = [this.relation(r)
-                                  for r in sent.relations] 
+                                  for r in sent.relations]
         return json_sent
 
     def passage(this, psg):
@@ -55,11 +55,11 @@ class BioC2JSON:
         json_psg['text'] =  psg.text
         json_psg['text'] =  psg.text if psg.text else ""
         json_psg['sentences'] = [this.sentence(s)
-                                 for s in psg.sentences] 
+                                 for s in psg.sentences]
         json_psg['annotations'] = [this.annotation(a)
                                    for a in psg.annotations]
         json_psg['relations'] = [this.relation(r)
-                                 for r in psg.relations] 
+                                 for r in psg.relations]
         return json_psg
 
     def document(this, doc):
@@ -69,7 +69,7 @@ class BioC2JSON:
         json_doc['passages'] = [this.passage(p)
                                 for p in doc.passages]
         json_doc['relations'] = [this.relation(r)
-                                 for r in doc.relations] 
+                                 for r in doc.relations]
         return json_doc
 
     def collection(this, collection):
@@ -79,7 +79,7 @@ class BioC2JSON:
         json_collection['key'] = collection.key
         json_collection['infons'] = collection.infons
         json_collection['documents'] = [this.document(d)
-                                        for d in collection.documents] 
+                                        for d in collection.documents]
         return json_collection
 
 class JSON2BioC:
@@ -94,7 +94,7 @@ class JSON2BioC:
         rel = bioc.BioCRelation()
         rel.id = json_rel['id']
         rel.infons = json_rel['infons']
-        rel.nodes = [this.node(n) for n in json_rel['nodes']] 
+        rel.nodes = [this.node(n) for n in json_rel['nodes']]
         return rel
 
     def location(this, json_loc):
@@ -109,9 +109,9 @@ class JSON2BioC:
         note.infons = json_note['infons']
         note.text = json_note['text']
         note.locations = [this.location(l)
-                          for l in json_note['locations']] 
+                          for l in json_note['locations']]
         return note
-    
+
     def sentence(this, json_sent):
         sent = bioc.BioCSentence()
         sent.infons = json_sent['infons']
@@ -149,7 +149,7 @@ class JSON2BioC:
     def collection(this, json_collection):
         collection = bioc.BioCCollection()
         collection.source = json_collection['source']
-        collection.date = json_collection['date'] 
+        collection.date = json_collection['date']
         collection.key = json_collection['key']
         collection.infons = json_collection['infons']
         collection.documents = [this.document(d)
@@ -182,6 +182,6 @@ if __name__ == "__main__":
 
         json2bioc =JSON2BioC()
         bioc_collection = json2bioc.collection(bioc_json)
-        
+
         writer = bioc.BioCWriter(out_file, bioc_collection)
         writer.write()

@@ -1,0 +1,30 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "bioCProcessor",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "bioCProcessor"
+      ],
+      "runtimeExecutable": "npm",
+      "runtimeVersion": "20.11.0",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "name": "bioc_xml2json",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/bioc_xml2json.py",
+      "console": "integratedTerminal"
+    }
+  ]
+}

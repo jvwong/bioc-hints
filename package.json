@@ -1,0 +1,23 @@
+{
+  "name": "bioc-json",
+  "version": "1.0.0",
+  "description": "For BioC json",
+  "main": "index.js",
+  "scripts": {
+    "bioCProcessor": "node scripts/bioCProcessor.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ncbi-nlp/BioC-JSON.git"
+  },
+  "author": "jvwong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ncbi-nlp/BioC-JSON/issues"
+  },
+  "homepage": "https://github.com/ncbi-nlp/BioC-JSON#readme",
+  "type": "module",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

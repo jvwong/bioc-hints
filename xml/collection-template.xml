@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<collection>
+  <source>grounding-search</source>
+  <date>20240301</date>
+  <key>BioC.key</key>
+  <document>
+    <id>adoi</id>
+    <infon key="pmid"></infon>
+    <infon key="doi"></infon>
+    <passage>
+      <infon key="type">title</infon>
+      <offset>0</offset>
+      <text>A title.</text>
+    </passage>
+    <passage>
+      <infon key="type">abstract</infon>
+      <offset>8</offset>
+      <text>An abstract.</text>
+    </passage>
+  </document>
+</collection>
