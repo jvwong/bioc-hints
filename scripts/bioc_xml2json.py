@@ -14,11 +14,15 @@ for (dirpath, dirnames, filenames) in walk(BIOC_XML_PATH):
     f.extend(filenames)
     break
 
+all = BioCCollection()
 ### Deserialize ``fp`` to a BioC collection object.
 for filename in f:
   with open(path.join(BIOC_XML_PATH, filename), 'r') as fp:
     collection = biocxml.load(fp)
+
+  [ all.add_document(d) for d in collection.documents ]
+
   ### Serialize ``collection`` to a BioC Json formatted ``str``.
-  jsonFile = Path(filename).stem + '.json'
+  jsonFile = 'all.json'
   with open(path.join(BIOC_JSON_PATH, jsonFile), 'w') as fp:
-    biocjson.dump(collection, fp, indent=2)
+    biocjson.dump(all, fp, indent=2)

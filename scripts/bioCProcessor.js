@@ -21,12 +21,23 @@ async function save(fpath, data){
   }
 }
 
-function asHints(bioCCollection) {
+function asCases(bioCCollection) {
+
+  const byXref = annotation => {
+    const { infons: { type, identifier }} = annotation;
+    return `${type}_${identifier}`;
+  }
   const getPassage = (document, section) => {
     const { passages } = document;
     return lodash.find( passages, o => o.infons.type === section );
-  }
-  const validAnnotationTypes = new Set(['Gene', 'Species']);
+  };
+
+  const isValidType = annotation => {
+    const validAnnotationTypes = new Set(['Gene', 'Species']);
+    const { infons: { type }} = annotation;
+    return validAnnotationTypes.has( type )
+  };
+
   const toHint = annotation => {
     const entityTypes = new Map([
       ['Gene', 'ggp'],
@@ -52,47 +63,49 @@ function asHints(bioCCollection) {
       }
     }
   }
-  let hints = [];
-  const { documents } = bioCCollection;
-  const document = lodash.first(documents);
 
-  if(document){
+  const { documents } = bioCCollection;
+  const cases = [];
+  for (const document of documents ){
+    const { infons: { doi } } = document;
+    let hints = [];
     const sections = ['title' , 'abstract'];
     for( const section of sections ){
       const passage = getPassage(document, section);
-      const { annotations } = passage;
-      const uniqAnnotations = lodash.uniqBy(annotations, 'text');
-      const validAnnotations = lodash.filter(uniqAnnotations, o => validAnnotationTypes.has( o.infons.type ) );
-      validAnnotations.forEach( a => {
+      let { annotations } = passage;
+      annotations = lodash.uniqBy( annotations, byXref );
+      annotations = lodash.filter( annotations, isValidType );
+      annotations.forEach( a => {
         const hint = toHint( a );
         lodash.set(hint, 'section', section);
         hints.push( hint );
       });
     }
+    cases.push({
+      id: `https://dx.doi.org/${doi}`,
+      entities: [],
+      hints
+    });
   }
-
-  return hints;
+  return cases;
 }
 
-async function getHints(fpath) {
+async function getCases(fpath) {
   const bioCCollection = await load(fpath);
-  const hints = asHints(bioCCollection);
-  return hints;
+  const cases = asCases(bioCCollection);
+  return cases;
 }
 
 async function main(){
   // Constants
   const JSON_DIRECTORY = 'json'
-  const PUBTATOR_DIRECTORY = 'pubtator'
-  const HINTS_DIRECTORY = 'hints'
-  // BIOC_JSON_PATH = path.join(JSON_DIRECTORY, PUBTATOR_DIRECTORY)
-  // HINTS_PATH = path.join(JSON_DIRECTORY, HINTS_DIRECTORY)
-
-  const jsonFile = '10.1038_s41556-021-00642-9.json';
-  const inpath = path.join(JSON_DIRECTORY, PUBTATOR_DIRECTORY, jsonFile);
-  const outpath = path.join(JSON_DIRECTORY, HINTS_DIRECTORY, jsonFile);
-  const hints = await getHints(inpath);
-  await save(outpath, hints);
+  const INPUT_DIRECTORY = 'pubtator'
+  const OUTPUT_DIRECTORY = 'cases'
+  const jsonFile = 'all.json';
+  const inpath = path.join(JSON_DIRECTORY, INPUT_DIRECTORY, jsonFile);
+  const outpath = path.join(JSON_DIRECTORY, OUTPUT_DIRECTORY, jsonFile);
+  const cases = await getCases(inpath);
+  await save(outpath, cases);
 }
 
 await main()
