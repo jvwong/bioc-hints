@@ -1,0 +1,44 @@
+{
+  "comment": "Orthologue: Cdc6, Cks1",
+	"header": {
+		"type": "elink",
+		"version": "0.3"
+	},
+	"linksets": [
+		{
+			"dbfrom": "pubmed",
+			"ids": [
+				"31101497"
+			],
+			"linksetdbs": [
+				{
+					"dbto": "gene",
+					"linkname": "pubmed_gene",
+					"links": [
+						"852457",
+						"856236",
+						"850768",
+						"853244",
+						"856237",
+						"855450",
+						"853252",
+						"855239",
+						"852881",
+						"856557",
+						"852432",
+						"850345",
+						"856754"
+					]
+				},
+				{
+					"dbto": "gene",
+					"linkname": "pubmed_gene_rif",
+					"links": [
+						"855239",
+						"853244"
+					]
+				}
+			]
+		}
+	]
+}

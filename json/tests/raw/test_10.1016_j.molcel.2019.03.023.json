@@ -1,0 +1,80 @@
+[
+  {
+    "id": "https://dx.doi.org/10.1016/j.molcel.2019.03.023",
+    "entities": [],
+    "comment": "M. Musculus orthologues: ANKRD31, REC114",
+    "pmid": "31003867",
+    "hints": [
+      {
+        "text": "REC114",
+        "type": "ggp",
+        "xref": {
+          "dbName": "NCBI Gene",
+          "dbPrefix": "NCBIGene",
+          "id": "73673"
+        },
+        "section": "title"
+      },
+      {
+        "text": "ANKRD31",
+        "type": "ggp",
+        "xref": {
+          "dbName": "NCBI Gene",
+          "dbPrefix": "NCBIGene",
+          "id": "625662"
+        },
+        "section": "title"
+      },
+      {
+        "text": "mouse",
+        "type": "organism",
+        "xref": {
+          "dbName": "NCBI Taxonomy",
+          "dbPrefix": "NCBITaxon",
+          "id": "10090"
+        },
+        "section": "abstract"
+      },
+      {
+        "text": "ANKRD31",
+        "type": "ggp",
+        "xref": {
+          "dbName": "NCBI Gene",
+          "dbPrefix": "NCBIGene",
+          "id": "625662"
+        },
+        "section": "abstract"
+      },
+      {
+        "text": "sterility",
+        "type": "disease",
+        "xref": {
+          "dbName": "MeSH",
+          "dbPrefix": "mesh",
+          "id": "MESH:D007246"
+        },
+        "section": "abstract"
+      },
+      {
+        "text": "REC114",
+        "type": "ggp",
+        "xref": {
+          "dbName": "NCBI Gene",
+          "dbPrefix": "NCBIGene",
+          "id": "73673"
+        },
+        "section": "abstract"
+      },
+      {
+        "text": "PAR",
+        "type": "ggp",
+        "xref": {
+          "dbName": "NCBI Gene",
+          "dbPrefix": "NCBIGene",
+          "id": "69597"
+        },
+        "section": "abstract"
+      }
+    ]
+  }
+]

@@ -1,6 +1,25 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import lodash from 'lodash';
+import Path from 'path'
+
+// https://academic.oup.com/bioinformatics/article/38/18/4449/6651836
+const ANNOTATION_TYPES = {
+  GENE: 'Gene',
+  SPECIES: 'Species',
+  CHEMICAL: 'Chemical',
+  DISEASE: 'Disease',
+  CELL_LINE: 'CellLine',
+  // DNA_MUTATION: 'DNAMutation',
+  // PROTEIN_MUTATION: 'ProteinMutation',
+  // SNP: 'SNP',
+  // DNA_ALLELE: 'DNAAllele',
+  // PROTEIN_ALLELE: 'ProteinAllele',
+  // ACID_CHANGE: 'AcidChange',
+  // OTHER_MUTATION: 'OtherMutation'
+};
+
+const annotationTypeSet = new Set( Object.values(ANNOTATION_TYPES));
 
 async function load(fpath){
   try {
@@ -34,9 +53,8 @@ function asCases(bioCCollection) {
 
   const isValid = annotation => {
     const isValidType = annotation => {
-      const validAnnotationTypes = new Set(['Gene', 'Species']);
       const { infons: { type }} = annotation;
-      return validAnnotationTypes.has( type )
+      return annotationTypeSet.has( type );
     };
     const hasXref = annotation => {
       const { infons } = annotation;
@@ -47,25 +65,25 @@ function asCases(bioCCollection) {
 
   const toHint = annotation => {
     const entityTypes = new Map([
-      ['Gene', 'ggp'],
-      ['Chemical', 'chemical'],
-      ['Disease', 'disease'],
-      ['CellLine', 'cellLine'],
-      ['Species', 'organism']
+      [ANNOTATION_TYPES.GENE, 'ggp'],
+      [ANNOTATION_TYPES.CHEMICAL, 'chemical'],
+      [ANNOTATION_TYPES.DISEASE, 'disease'],
+      [ANNOTATION_TYPES.CELL_LINE, 'cellLine'],
+      [ANNOTATION_TYPES.SPECIES, 'organism']
     ]);
     const dbPrefixes = new Map([
-      ['Gene', 'NCBIGene'],
-      ['Chemical', 'CHEBI'],
-      ['Disease', 'mesh'],
-      ['CellLine', 'cellosaurus'],
-      ['Species', 'NCBITaxon'],
+      [ANNOTATION_TYPES.GENE, 'NCBIGene'],
+      [ANNOTATION_TYPES.CHEMICAL, 'CHEBI'],
+      [ANNOTATION_TYPES.DISEASE, 'mesh'],
+      [ANNOTATION_TYPES.CELL_LINE, 'cellosaurus'],
+      [ANNOTATION_TYPES.SPECIES, 'NCBITaxon'],
     ]);
     const dbNames = new Map([
-      ['Gene', 'NCBI Gene'],
-      ['Chemical', 'ChEBI'],
-      ['Disease', 'MeSH'],
-      ['CellLine', 'Cellosaurus'],
-      ['Species', 'NCBI Taxonomy'],
+      [ANNOTATION_TYPES.GENE, 'NCBI Gene'],
+      [ANNOTATION_TYPES.CHEMICAL, 'ChEBI'],
+      [ANNOTATION_TYPES.DISEASE, 'MeSH'],
+      [ANNOTATION_TYPES.CELL_LINE, 'Cellosaurus'],
+      [ANNOTATION_TYPES.SPECIES, 'NCBI Taxonomy'],
     ]);
     const { text, infons: { identifier: id, type } } = annotation;
 
@@ -83,7 +101,7 @@ function asCases(bioCCollection) {
   const { documents } = bioCCollection;
   const cases = [];
   for (const document of documents ){
-    const { infons: { doi } } = document;
+    const { infons: { doi, comment, pmid } } = document;
     let hints = [];
     const sections = ['title' , 'abstract'];
     for( const section of sections ){
@@ -100,13 +118,15 @@ function asCases(bioCCollection) {
     cases.push({
       id: `https://dx.doi.org/${doi}`,
       entities: [],
+      comment,
+      pmid,
       hints
     });
   }
   return cases;
 }
 
-async function getCases(fpath) {
+async function getTestCases(fpath) {
   const bioCCollection = await load(fpath);
   const cases = asCases(bioCCollection);
   return cases;
@@ -116,12 +136,23 @@ async function main(){
   // Constants
   const JSON_DIRECTORY = 'json'
   const INPUT_DIRECTORY = 'pubtator'
-  const OUTPUT_DIRECTORY = 'cases'
-  const jsonFile = 'all.json';
-  const inpath = path.join(JSON_DIRECTORY, INPUT_DIRECTORY, jsonFile);
-  const outpath = path.join(JSON_DIRECTORY, OUTPUT_DIRECTORY, jsonFile);
-  const cases = await getCases(inpath);
-  await save(outpath, cases);
+  const OUTPUT_DIRECTORY = 'tests/raw'
+  const SRC_DIR = path.join(JSON_DIRECTORY, INPUT_DIRECTORY);
+
+  try {
+    const files = await fs.readdir(SRC_DIR);
+    for (const file of files){
+      const inpath = path.join(SRC_DIR, file);
+      const out_filename = `test_${Path.basename(file)}`;
+      const cases = await getTestCases(inpath);
+
+      const outpath = path.join(JSON_DIRECTORY, OUTPUT_DIRECTORY, out_filename);
+      await save(outpath, cases);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
 }
 
 await main()
