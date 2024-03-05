@@ -32,23 +32,39 @@ function asCases(bioCCollection) {
     return lodash.find( passages, o => o.infons.type === section );
   };
 
-  const isValidType = annotation => {
-    const validAnnotationTypes = new Set(['Gene', 'Species']);
-    const { infons: { type }} = annotation;
-    return validAnnotationTypes.has( type )
+  const isValid = annotation => {
+    const isValidType = annotation => {
+      const validAnnotationTypes = new Set(['Gene', 'Species']);
+      const { infons: { type }} = annotation;
+      return validAnnotationTypes.has( type )
+    };
+    const hasXref = annotation => {
+      const { infons } = annotation;
+      return lodash.has( infons, 'identifier' );
+    }
+    return isValidType( annotation ) && hasXref( annotation );
   };
 
   const toHint = annotation => {
     const entityTypes = new Map([
       ['Gene', 'ggp'],
+      ['Chemical', 'chemical'],
+      ['Disease', 'disease'],
+      ['CellLine', 'cellLine'],
       ['Species', 'organism']
     ]);
     const dbPrefixes = new Map([
-      ['Gene', 'ncbigene'],
-      ['Species', 'ncbitaxon'],
+      ['Gene', 'NCBIGene'],
+      ['Chemical', 'CHEBI'],
+      ['Disease', 'mesh'],
+      ['CellLine', 'cellosaurus'],
+      ['Species', 'NCBITaxon'],
     ]);
     const dbNames = new Map([
       ['Gene', 'NCBI Gene'],
+      ['Chemical', 'ChEBI'],
+      ['Disease', 'MeSH'],
+      ['CellLine', 'Cellosaurus'],
       ['Species', 'NCBI Taxonomy'],
     ]);
     const { text, infons: { identifier: id, type } } = annotation;
@@ -74,7 +90,7 @@ function asCases(bioCCollection) {
       const passage = getPassage(document, section);
       let { annotations } = passage;
       annotations = lodash.uniqBy( annotations, byXref );
-      annotations = lodash.filter( annotations, isValidType );
+      annotations = lodash.filter( annotations, isValid );
       annotations.forEach( a => {
         const hint = toHint( a );
         lodash.set(hint, 'section', section);

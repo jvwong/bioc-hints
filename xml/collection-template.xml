@@ -7,6 +7,7 @@
     <id>adoi</id>
     <infon key="pmid"></infon>
     <infon key="doi"></infon>
+    <infon key="comment"></infon>
     <passage>
       <infon key="type">title</infon>
       <offset>0</offset>
