@@ -40,7 +40,7 @@ async function save(fpath, data){
   }
 }
 
-function asCases(bioCCollection) {
+function asHint(bioCDocument) {
 
   const byXref = annotation => {
     const { infons: { type, identifier }} = annotation;
@@ -76,7 +76,10 @@ function asCases(bioCCollection) {
       [ANNOTATION_TYPES.CHEMICAL, 'CHEBI'],
       [ANNOTATION_TYPES.DISEASE, 'mesh'],
       [ANNOTATION_TYPES.CELL_LINE, 'cellosaurus'],
-      [ANNOTATION_TYPES.SPECIES, 'NCBITaxon'],
+      [ANNOTATION_TYPES.SPECIES, 'taxonomy'],
+    ]);
+    const dbProviderCode = new Map([
+      [ANNOTATION_TYPES.SPECIES, 'ncbi'],
     ]);
     const dbNames = new Map([
       [ANNOTATION_TYPES.GENE, 'NCBI Gene'],
@@ -98,57 +101,54 @@ function asCases(bioCCollection) {
     }
   }
 
-  const { documents } = bioCCollection;
-  const cases = [];
-  for (const document of documents ){
-    const { infons: { doi, comment, pmid } } = document;
-    let hints = [];
-    const sections = ['title' , 'abstract'];
-    for( const section of sections ){
-      const passage = getPassage(document, section);
-      let { annotations } = passage;
-      annotations = lodash.uniqBy( annotations, byXref );
-      annotations = lodash.filter( annotations, isValid );
-      annotations.forEach( a => {
-        const hint = toHint( a );
-        lodash.set(hint, 'section', section);
-        hints.push( hint );
-      });
-    }
-    cases.push({
-      id: `https://dx.doi.org/${doi}`,
-      entities: [],
-      comment,
-      pmid,
-      hints
+  const { infons: { doi, comment, pmid } } = bioCDocument;
+  let hints = [];
+  const sections = ['title' , 'abstract'];
+  for( const section of sections ){
+    const passage = getPassage(bioCDocument, section);
+    let { annotations } = passage;
+    annotations = lodash.uniqBy( annotations, byXref );
+    annotations = lodash.filter( annotations, isValid );
+    annotations.forEach( a => {
+      const hint = toHint( a );
+      lodash.set(hint, 'section', section);
+      hints.push( hint );
     });
   }
-  return cases;
+  return {
+    id: `https://dx.doi.org/${doi}`,
+    entities: [],
+    comment,
+    pmid,
+    hints
+  };
 }
 
-async function getTestCases(fpath) {
-  const bioCCollection = await load(fpath);
-  const cases = asCases(bioCCollection);
+async function toHints(fpath) {
+  const bioCDocument = await load(fpath);
+  const cases = asHint(bioCDocument);
   return cases;
 }
 
 async function main(){
   // Constants
-  const JSON_DIRECTORY = 'json'
-  const INPUT_DIRECTORY = 'pubtator'
-  const OUTPUT_DIRECTORY = 'tests/raw'
-  const SRC_DIR = path.join(JSON_DIRECTORY, INPUT_DIRECTORY);
-
+  const SOURCE_DIR = 'sources';
+  const OUTPUT_DIRECTORY = 'hints';
   try {
-    const files = await fs.readdir(SRC_DIR);
-    for (const file of files){
-      const inpath = path.join(SRC_DIR, file);
-      const out_filename = `test_${Path.basename(file)}`;
-      const cases = await getTestCases(inpath);
+    // const dirs = await fs.readdir(SOURCE_DIR);
+    const dirs = ['pubtator'];
+    for (const dir of dirs){
+      const files = await fs.readdir(path.join(SOURCE_DIR, dir));
+      for (const file of files){
+        const inpath = path.join(SOURCE_DIR, dir, file);
+        const hint = await toHints(inpath);
 
-      const outpath = path.join(JSON_DIRECTORY, OUTPUT_DIRECTORY, out_filename);
-      await save(outpath, cases);
+        const hints_filename = `hints_${Path.basename(file)}`;
+        const outpath = path.join(OUTPUT_DIRECTORY, hints_filename);
+        // await save(outpath, hint);
+      }
     }
+
   } catch (err) {
     console.error(err);
   }
